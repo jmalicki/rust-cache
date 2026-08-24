@@ -29,7 +29,7 @@
     "@actions/glob": "^0.7.0",
     "@actions/io": "^3.0.2",
     "@actions/warpbuild-cache": "npm:github-actions.warp-cache@1.4.7",
-    "smol-toml": "^1.7.1"
+    "smol-toml": "^1.8.0"
   },
   "overrides": {
     "@actions/cache": {
