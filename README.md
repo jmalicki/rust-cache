@@ -1,7 +1,31 @@
-# Rust Cache Action
+# Rust Cache Action (fork)
+
+Fork of [Swatinem/rust-cache](https://github.com/Swatinem/rust-cache) **v2.9.2** with configurable zstd cache compression via [jmalicki/actions-cache](https://github.com/jmalicki/actions-cache). See [UPSTREAM.md](./UPSTREAM.md).
 
 A GitHub Action that implements smart caching for rust/cargo projects with
 sensible defaults.
+
+## Fork: zstd compression inputs
+
+This fork adds `zstd-level` and `zstd-long` inputs (defaults: `10` and `31`) that tune GitHub Actions cache blob compression. Bump `prefix-key` when changing compression so old cache entries are not mixed (default: `v1-zstd10-long31`).
+
+```yaml
+- uses: jmalicki/rust-cache@<full-commit-sha> # v2.9.2
+  with:
+    prefix-key: v1-zstd10-long31
+    zstd-level: "10"
+    zstd-long: "31"
+    shared-key: ci-native
+    env-vars: CARGO_PROFILE
+```
+
+Pin the **full commit SHA** — our `v2.9.2` tag includes fork patches on top of Swatinem v2.9.2.
+
+### Migrating from Swatinem/rust-cache@v2
+
+1. Pin `jmalicki/rust-cache@<sha>` instead of `Swatinem/rust-cache@v2`
+2. Set `prefix-key: v1-zstd10-long31` (or your own prefix) to avoid restoring old zstd-3/long-30 blobs
+3. Optionally set `zstd-level` / `zstd-long` explicitly (defaults match bake-off winners)
 
 ## Example usage
 
@@ -12,7 +36,7 @@ sensible defaults.
 # before the plugin, as the cache uses the current rustc version as its cache key
 - run: rustup toolchain install stable --profile minimal
 
-- uses: Swatinem/rust-cache@v2
+- uses: jmalicki/rust-cache@<full-commit-sha> # v2.9.2
   with:
     # The prefix cache key, this can be changed to start a new cache manually.
     # default: "v0-rust"

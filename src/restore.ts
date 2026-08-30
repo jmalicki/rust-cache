@@ -3,6 +3,7 @@ import * as core from "@actions/core";
 import { cleanTargetDir } from "./cleanup.js";
 import { CacheConfig } from "./config.js";
 import { getCacheProvider, reportError } from "./utils.js";
+import { applyZstdConfig } from "./zstd.js";
 
 process.on("uncaughtException", (e) => {
   core.error(e.message);
@@ -12,6 +13,7 @@ process.on("uncaughtException", (e) => {
 });
 
 async function run() {
+  applyZstdConfig();
   const cacheProvider = await getCacheProvider();
 
   if (!cacheProvider.cache.isFeatureAvailable()) {

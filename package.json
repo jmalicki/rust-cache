@@ -2,28 +2,31 @@
   "private": true,
   "name": "rust-cache",
   "version": "2.9.2",
-  "description": "A GitHub Action that implements smart caching for rust/cargo projects with sensible defaults.",
+  "description": "Fork of Swatinem/rust-cache with configurable zstd cache compression.",
   "keywords": [
     "actions",
     "rust",
-    "cache"
+    "cache",
+    "zstd"
   ],
   "author": "Arpad Borsos <arpad.borsos@googlemail.com>",
   "license": "LGPL-3.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Swatinem/rust-cache.git"
+    "url": "git+https://github.com/jmalicki/rust-cache.git"
   },
   "bugs": {
-    "url": "https://github.com/Swatinem/rust-cache/issues"
+    "url": "https://github.com/jmalicki/rust-cache/issues"
   },
-  "funding": {
-    "url": "https://github.com/sponsors/Swatinem"
-  },
-  "homepage": "https://github.com/Swatinem/rust-cache#readme",
+  "homepage": "https://github.com/jmalicki/rust-cache#readme",
   "type": "module",
+  "upstream": {
+    "source": "Swatinem/rust-cache",
+    "version": "2.9.2",
+    "url": "https://github.com/Swatinem/rust-cache/releases/tag/v2.9.2"
+  },
   "dependencies": {
-    "@actions/cache": "^6.2.0",
+    "@actions/cache": "github:jmalicki/actions-cache#v6.2.0",
     "@actions/core": "^3.0.1",
     "@actions/exec": "^3.0.0",
     "@actions/glob": "^0.7.0",
@@ -33,6 +36,10 @@
   },
   "overrides": {
     "@actions/cache": {
+      "@actions/glob": "$@actions/glob"
+    },
+    "@actions/warpbuild-cache": {
+      "@actions/cache": "github:jmalicki/actions-cache#v6.2.0",
       "@actions/glob": "$@actions/glob"
     }
   },
@@ -49,6 +56,7 @@
     "clean": "node -e \"(async () => { try { await require('fs/promises').rm('dist', { recursive: true }); } catch {} })()\"",
     "prebuild": "npm run clean",
     "build": "tsc && rollup --config .build/rollup.config.js",
+    "test": "tsc && node --test tests/*.test.mjs",
     "prepublishOnly": "npm run test",
     "prepare": "npm run build && linefix dist"
   }

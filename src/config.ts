@@ -70,7 +70,7 @@ export class CacheConfig {
     // This uses either the `shared-key` input,
     // or the `key` input combined with the `job` key.
 
-    let key = core.getInput("prefix-key") || "v0-rust";
+    let key = core.getInput("prefix-key") || "v1-zstd10-long31";
 
     const sharedKey = core.getInput("shared-key");
     if (sharedKey) {

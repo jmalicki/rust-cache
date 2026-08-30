@@ -1,0 +1,30 @@
+name: Sync upstream (manual fallback)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Swatinem/rust-cache version (e.g. 2.9.2)"
+        required: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Sync from Swatinem/rust-cache
+        run: bash scripts/sync-from-upstream.sh "${{ inputs.version }}"
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          title: "chore: sync upstream Swatinem/rust-cache ${{ inputs.version }}"
+          branch: sync/upstream-${{ inputs.version }}
+          labels: upstream-sync
+          commit-message: "chore: sync upstream Swatinem/rust-cache ${{ inputs.version }}"

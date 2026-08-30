@@ -1,11 +1,15 @@
-import * as os from 'os';
-import os__default from 'os';
-import * as crypto from 'crypto';
-import crypto__default from 'crypto';
 import * as fs from 'fs';
 import fs__default, { promises, createReadStream } from 'fs';
 import * as path$1 from 'path';
 import path__default from 'path';
+import assert, { ok } from 'assert';
+import * as os from 'os';
+import os__default from 'os';
+import * as crypto from 'crypto';
+import crypto__default from 'crypto';
+import 'stream';
+import require$$0__default from 'util';
+import fs$1 from 'fs/promises';
 import * as require$$2 from 'http';
 import require$$2__default from 'http';
 import * as require$$1 from 'https';
@@ -14,8 +18,6 @@ import 'net';
 import require$$1$1 from 'tls';
 import * as require$$0 from 'events';
 import require$$0__default$1 from 'events';
-import assert, { ok } from 'assert';
-import require$$0__default from 'util';
 import require$$0$3 from 'node:assert';
 import require$$0$5 from 'node:net';
 import http from 'node:http';
@@ -37,8 +39,6 @@ import require$$1$6 from 'node:dns';
 import require$$6 from 'string_decoder';
 import * as require$$2$1 from 'child_process';
 import { setTimeout as setTimeout$1 } from 'timers';
-import 'stream';
-import fs$1 from 'fs/promises';
 
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -34434,10 +34434,10 @@ async function getCacheProvider() {
     let cache;
     switch (cacheProvider) {
         case "github":
-            cache = await import('./cache-CTfQoCTL.js');
+            cache = await import('./cache-C1ErZVdn.js');
             break;
         case "warpbuild":
-            cache = await import('./cache-DC26rUaF.js').then(function (n) { return n.c; });
+            cache = await import('./cache-CWSDwSqO.js').then(function (n) { return n.c; });
             break;
         default:
             throw new Error(`The \`cache-provider\` \`${cacheProvider}\` is not valid.`);
@@ -34542,7 +34542,7 @@ class CacheConfig {
         // Construct key prefix:
         // This uses either the `shared-key` input,
         // or the `key` input combined with the `job` key.
-        let key = getInput("prefix-key") || "v0-rust";
+        let key = getInput("prefix-key") || "v1-zstd10-long31";
         const sharedKey = getInput("shared-key");
         if (sharedKey) {
             key += `-${sharedKey}`;
@@ -35160,4 +35160,30 @@ async function rmRF(dirName) {
     await rmRF$1(dirName);
 }
 
-export { BearerCredentialHandler as B, CacheConfig as C, HttpCodes as H, getInput as a, exportVariable as b, cleanTargetDir as c, isCacheUpToDate as d, error as e, debug as f, getCacheProvider as g, cleanRegistry as h, info as i, cleanBin as j, cleanGit as k, exec as l, mkdirP as m, create as n, warning as o, HttpClientError as p, HttpClient as q, reportError as r, setOutput as s, isDebug as t, setSecret as u, commonjsGlobal as v, which as w, requireTunnel as x, getDefaultExportFromCjs as y, getAugmentedNamespace as z };
+const ENV_ZSTD_LEVEL = "ACTIONS_CACHE_ZSTD_LEVEL";
+const ENV_ZSTD_LONG = "ACTIONS_CACHE_ZSTD_LONG";
+/** Apply zstd settings from action inputs to the process environment for `@actions/cache`. */
+function applyZstdConfig() {
+    const level = parseZstdLevel(getInput("zstd-level") || "10");
+    const long = parseZstdLong(getInput("zstd-long") || "31");
+    process.env[ENV_ZSTD_LEVEL] = String(level);
+    process.env[ENV_ZSTD_LONG] = String(long);
+    info(`Zstd cache compression: level ${level}, --long=${long}`);
+    return { level, long };
+}
+function parseZstdLevel(raw) {
+    const level = parseInt(raw, 10);
+    if (!Number.isInteger(level) || level < 1 || level > 22) {
+        throw new Error(`\`zstd-level\` must be an integer from 1 to 22, got "${raw}"`);
+    }
+    return level;
+}
+function parseZstdLong(raw) {
+    const long = parseInt(raw, 10);
+    if (!Number.isInteger(long) || long < 10 || long > 31) {
+        throw new Error(`\`zstd-long\` must be an integer from 10 to 31, got "${raw}"`);
+    }
+    return long;
+}
+
+export { getAugmentedNamespace as A, BearerCredentialHandler as B, CacheConfig as C, HttpCodes as H, applyZstdConfig as a, getInput as b, exportVariable as c, cleanTargetDir as d, error as e, isCacheUpToDate as f, getCacheProvider as g, debug as h, info as i, cleanRegistry as j, cleanBin as k, cleanGit as l, exec as m, mkdirP as n, create as o, warning as p, HttpClientError as q, reportError as r, setOutput as s, HttpClient as t, isDebug as u, setSecret as v, which as w, commonjsGlobal as x, requireTunnel as y, getDefaultExportFromCjs as z };

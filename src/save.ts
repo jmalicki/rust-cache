@@ -4,6 +4,7 @@ import * as exec from "@actions/exec";
 import { cleanBin, cleanGit, cleanRegistry, cleanTargetDir } from "./cleanup.js";
 import { CacheConfig, isCacheUpToDate } from "./config.js";
 import { getCacheProvider, reportError } from "./utils.js";
+import { applyZstdConfig } from "./zstd.js";
 
 process.on("uncaughtException", (e) => {
   core.error(e.message);
@@ -13,6 +14,7 @@ process.on("uncaughtException", (e) => {
 });
 
 async function run() {
+  applyZstdConfig();
   const cacheProvider = await getCacheProvider();
 
   const save = core.getInput("save-if").toLowerCase() || "true";

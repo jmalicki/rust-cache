@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "labels": ["upstream-sync"],
+  "prConcurrentLimit": 1,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^package\\.json$/"],
+      "matchStrings": [
+        "\"upstream\"[\\s\\S]*?\"version\":\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "Swatinem/rust-cache",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["regex"],
+      "matchDepNames": ["Swatinem/rust-cache"],
+      "groupName": "upstream Swatinem/rust-cache sync",
+      "commitMessageTopic": "sync upstream Swatinem/rust-cache",
+      "postUpgradeTasks": {
+        "commands": ["bash scripts/sync-from-upstream.sh {{{newValue}}}"],
+        "fileFilters": ["**/*"],
+        "executionMode": "branch"
+      }
+    }
+  ]
+}

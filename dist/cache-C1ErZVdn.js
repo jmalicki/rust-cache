@@ -1,4 +1,4 @@
-import { f as debug, m as mkdirP, n as create, l as exec, w as which, o as warning, i as info, H as HttpCodes, p as HttpClientError, q as HttpClient, t as isDebug, u as setSecret, B as BearerCredentialHandler, e as error } from './cleanup-BWEbZ6YT.js';
+import { h as debug, n as mkdirP, o as create, m as exec, w as which, p as warning, i as info, H as HttpCodes, q as HttpClientError, t as HttpClient, u as isDebug, v as setSecret, B as BearerCredentialHandler, e as error } from './zstd-6DjPDbPT.js';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
@@ -24,12 +24,13 @@ import { r as requireDist, a as requireDist$1, b as requireStateCjs, c as requir
 import * as require$$0$2 from 'stream';
 import { Readable } from 'stream';
 import fs$1 from 'node:fs';
+import 'assert';
 import 'os';
+import 'fs/promises';
 import 'http';
 import 'https';
 import 'net';
 import 'tls';
-import 'assert';
 import 'node:assert';
 import 'node:net';
 import 'node:querystring';
@@ -45,7 +46,6 @@ import 'node:dns';
 import 'string_decoder';
 import 'child_process';
 import 'timers';
-import 'fs/promises';
 import 'tty';
 
 var re = {exports: {}};
@@ -47845,6 +47845,47 @@ function internalCacheTwirpClient(options) {
     return new CacheServiceClientJSON(client);
 }
 
+/** @returns {number} zstd --long window (10–31), default 30 (upstream). */
+function getZstdLong() {
+  const env = process.env["ACTIONS_CACHE_ZSTD_LONG"];
+  if (env !== undefined && env !== "") {
+    const long = parseInt(env, 10);
+    if (Number.isInteger(long) && long >= 10 && long <= 31) {
+      return long;
+    }
+  }
+  return 30;
+}
+
+/** @returns {number} zstd compression level (1–22), default 3 (upstream). */
+function getZstdLevel() {
+  const env = process.env["ACTIONS_CACHE_ZSTD_LEVEL"];
+  if (env !== undefined && env !== "") {
+    const level = parseInt(env, 10);
+    if (Number.isInteger(level) && level >= 1 && level <= 22) {
+      return level;
+    }
+  }
+  return 3;
+}
+
+/** @returns {string} e.g. `-10` or `` when level is default 3 */
+function zstdLevelFlag() {
+  const level = getZstdLevel();
+  return level === 3 ? "" : `-${level}`;
+}
+
+/** @returns {string} level segment with leading space when non-default, e.g. ` -10` */
+function zstdLevelArg() {
+  const flag = zstdLevelFlag();
+  return flag ? ` ${flag}` : "";
+}
+
+/** @returns {string} e.g. `--long=31` */
+function zstdLongFlag() {
+  return `--long=${getZstdLong()}`;
+}
+
 var __awaiter$1 = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -47975,17 +48016,18 @@ function getDecompressionProgram(tarPath, compressionMethod, archivePath) {
         const BSD_TAR_ZSTD = tarPath.type === ArchiveToolType.BSD &&
             compressionMethod !== CompressionMethod.Gzip &&
             IS_WINDOWS;
+        const longFlag = zstdLongFlag();
         switch (compressionMethod) {
             case CompressionMethod.Zstd:
                 return BSD_TAR_ZSTD
                     ? [
-                        'zstd -d --long=30 --force -o',
+                        `zstd -d ${longFlag} --force -o`,
                         TarFilename,
                         archivePath.replace(new RegExp(`\\${path.sep}`, 'g'), '/')
                     ]
                     : [
                         '--use-compress-program',
-                        IS_WINDOWS ? '"zstd -d --long=30"' : 'unzstd --long=30'
+                        IS_WINDOWS ? `"zstd -d ${longFlag}"` : `unzstd ${longFlag}`
                     ];
             case CompressionMethod.ZstdWithoutLong:
                 return BSD_TAR_ZSTD
@@ -48012,17 +48054,21 @@ function getCompressionProgram(tarPath, compressionMethod) {
         const BSD_TAR_ZSTD = tarPath.type === ArchiveToolType.BSD &&
             compressionMethod !== CompressionMethod.Gzip &&
             IS_WINDOWS;
+        const longFlag = zstdLongFlag();
+        const levelArg = zstdLevelArg();
         switch (compressionMethod) {
             case CompressionMethod.Zstd:
                 return BSD_TAR_ZSTD
                     ? [
-                        'zstd -T0 --long=30 --force -o',
+                        `zstd -T0${levelArg} ${longFlag} --force -o`,
                         cacheFileName.replace(new RegExp(`\\${path.sep}`, 'g'), '/'),
                         TarFilename
                     ]
                     : [
                         '--use-compress-program',
-                        IS_WINDOWS ? '"zstd -T0 --long=30"' : 'zstdmt --long=30'
+                        IS_WINDOWS
+                            ? `"zstd -T0${levelArg} ${longFlag}"`
+                            : `zstdmt ${longFlag}${levelArg}`
                     ];
             case CompressionMethod.ZstdWithoutLong:
                 return BSD_TAR_ZSTD

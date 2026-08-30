@@ -1,15 +1,17 @@
-import { e as error, g as getCacheProvider, a as getInput, b as exportVariable, C as CacheConfig, i as info, c as cleanTargetDir, r as reportError, s as setOutput } from './cleanup-BWEbZ6YT.js';
-import 'os';
-import 'crypto';
+import { e as error, a as applyZstdConfig, g as getCacheProvider, b as getInput, c as exportVariable, C as CacheConfig, i as info, d as cleanTargetDir, r as reportError, s as setOutput } from './zstd-6DjPDbPT.js';
 import 'fs';
 import 'path';
+import 'assert';
+import 'os';
+import 'crypto';
+import 'stream';
+import 'util';
+import 'fs/promises';
 import 'http';
 import 'https';
 import 'net';
 import 'tls';
 import 'events';
-import 'assert';
-import 'util';
 import 'node:assert';
 import 'node:net';
 import 'node:http';
@@ -31,8 +33,6 @@ import 'node:dns';
 import 'string_decoder';
 import 'child_process';
 import 'timers';
-import 'stream';
-import 'fs/promises';
 
 process.on("uncaughtException", (e) => {
     error(e.message);
@@ -41,6 +41,7 @@ process.on("uncaughtException", (e) => {
     }
 });
 async function run() {
+    applyZstdConfig();
     const cacheProvider = await getCacheProvider();
     if (!cacheProvider.cache.isFeatureAvailable()) {
         setCacheHitOutput(false);
